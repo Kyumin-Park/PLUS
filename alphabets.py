@@ -44,30 +44,6 @@ class Alphabet:
         return string.tobytes()
 
 
-class DNA(Alphabet):
-    """ DNA sequence encoder """
-    def __init__(self, unknown_nt=False):
-        if unknown_nt: chars = b'ACGTN'; chars_rc =  b'TGCAN'
-        else:          chars = b'ACGT';  chars_rc =  b'TGCA'
-        encoding = np.arange(len(chars))
-        encoding += 1                    # leave 0 for padding tokens
-        encoding_rc = np.arange(len(chars_rc))
-        encoding_rc += 1                 # leave 0 for padding tokens
-        super(DNA, self).__init__(chars, encoding, chars_rc=chars_rc, encoding_rc=encoding_rc, missing=len(chars))
-
-
-class RNA(Alphabet):
-    """ RNA sequence encoder """
-    def __init__(self, unknown_nt=False):
-        if unknown_nt: chars = b'ACGUN'; chars_rc =  b'UGCAN'
-        else:          chars = b'ACGU';  chars_rc =  b'UGCA'
-        encoding = np.arange(len(chars))
-        encoding += 1                    # leave 0 for padding tokens
-        encoding_rc = np.arange(len(chars_rc))
-        encoding_rc += 1                 # leave 0 for padding tokens
-        super(RNA, self).__init__(chars, encoding, chars_rc=chars_rc, encoding_rc=encoding_rc, missing=len(chars))
-
-
 class Protein(Alphabet):
     """ protein sequence encoder """
     def __init__(self):
@@ -78,11 +54,12 @@ class Protein(Alphabet):
         super(Protein, self).__init__(chars, encoding, missing=21)
 
 
-# PLUS
-
-class SecStr8(Alphabet):
-    """ protein secondary structure encoder """
+class Chem(Alphabet):
+    """ protein sequence encoder """
     def __init__(self):
-        chars =  b'HBEGITS '
+        chars = b'@C)(=cOn1S2/H[N]\\'
         encoding = np.arange(len(chars))
-        super(SecStr8, self).__init__(chars, encoding, missing=255)
+        encoding += 24                    # leave 0 for padding tokens
+        super(Chem, self).__init__(chars, encoding, missing=41)
+
+
