@@ -46,7 +46,7 @@ class Trainer:
             loss = self.criterion(pred, label)
 
             total_loss += loss.item()
-            total_acc += torch.eq(torch.argmax(pred, dim=1), label).item()
+            total_acc += torch.eq(torch.argmax(pred, dim=1), label).to(torch.int32).sum().item()
             n_data += tokens.size(0)
 
         print(f'Validation Finished - Average loss: {total_loss / n_data}, Average Acc: {total_acc / n_data}')

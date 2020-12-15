@@ -4,10 +4,10 @@ import tqdm
 from xml.etree import ElementTree
 
 def collect_smiles(n_sample=5000):
-    molecule_df = pandas.read_csv('./.data/molecule_dictionary_data.tsv', sep='\t', header=0, index_col='molregno')
-    protein_df = pandas.read_csv('./.data/target_sequence_data.tsv', sep='\t', header=0, index_col='tid')
-    active_df = pandas.read_csv('./.data/active_data.tsv', sep='\t', header=0)
-    inactive_df = pandas.read_csv('./.data/inactive_data.tsv', sep='\t', header=0)
+    molecule_df = pandas.read_csv('./data/molecule_dictionary_data.tsv', sep='\t', header=0, index_col='molregno')
+    protein_df = pandas.read_csv('./data/target_sequence_data.tsv', sep='\t', header=0, index_col='tid')
+    active_df = pandas.read_csv('./data/active_data.tsv', sep='\t', header=0)
+    inactive_df = pandas.read_csv('./data/inactive_data.tsv', sep='\t', header=0)
 
     active_sample = active_df.sample(n_sample)
     inactive_sample = inactive_df.sample(n_sample)
@@ -30,7 +30,7 @@ def collect_smiles(n_sample=5000):
                 continue
             result.append(f'{label}\t{protein}\t{smiles}\n')
 
-    with open('./.data/preprocessed_data.tsv', 'w', encoding='utf-8') as f:
+    with open('./data/preprocessed_data.tsv', 'w', encoding='utf-8') as f:
         f.writelines(result)
     print(len(result))
 

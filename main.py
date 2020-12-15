@@ -41,10 +41,10 @@ def main():
 def get_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--epochs', default=30, type=int, help='Total Epochs')
-    parser.add_argument('--input_dim', default=41, type=int, help='Input dimension (Vocab size)')
-    parser.add_argument('--batch_size', default=32, type=int, help='Batch size')
+    parser.add_argument('--input_dim', default=50, type=int, help='Input dimension (Vocab size)')
+    parser.add_argument('--batch_size', default=16, type=int, help='Batch size')
     parser.add_argument('--learning_rate', default=5e-4, type=float, help='Initial Learning Rate')
-    parser.add_argument('--warm_up', default=3, type=int, help='Warmup steps')
+    parser.add_argument('--warm_up', default=0.1, type=float, help='Warmup steps')
     parser.add_argument('--device', default='cuda:0', type=str, help='Running Device')
     parser.add_argument('--num_classes', default=2, type=int, help='Number of classes')
     parser.add_argument('--pretrained_model', default='./weight/PLUS-TFM.pt', type=str, help='Pretrained Model')

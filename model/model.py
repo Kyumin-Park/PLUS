@@ -32,25 +32,15 @@ class ProteinChemBERT(nn.Module):
             self.drop_cls = nn.Dropout(cfg.dropout)
             self.cls = nn.Linear(cfg.hidden_dim, cfg.num_classes)
 
-    def forward(self, tokens, segments, input_mask, masked_pos=None, per_seq=True, embedding=False):
+    def forward(self, tokens, segments, input_mask, per_seq=True):
         h = self.transformer(tokens, segments, input_mask)
 
-        if embedding:
-            return h
+        if per_seq:
+            logits_cls = self.cls(self.drop_cls(h[:, 0]))
         else:
-            logits_lm = None
-            if masked_pos is not None:
-                masked_pos = masked_pos[:, :, None].expand(-1, -1, h.size(-1))
-                h_masked = torch.gather(h, 1, masked_pos)
-                h_masked = self.norm_lm(tfm.gelu(self.fc_lm(h_masked)))
-                logits_lm = F.log_softmax(self.decoder(h_masked) + self.decoder_bias, dim=2)
+            logits_cls = self.cls(self.drop_cls(h))
 
-            if per_seq:
-                logits_cls = self.cls(self.drop_cls(h[:, 0]))
-            else:
-                logits_cls = self.cls(self.drop_cls(h))
-
-            return logits_lm, logits_cls
+        return logits_cls
 
     def load_weights(self, pretrained_model, cls=True):
         # load pre-trained model weights

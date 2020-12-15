@@ -8,7 +8,7 @@ from alphabets import Protein, Chem
 
 class ProteinChemicalDataset(Dataset):
     def __init__(self, mode='train'):
-        data = pd.read_csv('./.data/raw_data.tsv', sep='\t', header=None)
+        data = pd.read_csv('./data/preprocessed_data.tsv', sep='\t', header=None)
         self.labels = data[0]
         self.proteins = data[1]
         self.molecules = data[2]
@@ -30,6 +30,7 @@ class ProteinChemicalDataset(Dataset):
 
         # -3  for special tokens [CLS], [SEP], [SEP]
         x0, x1 = self._truncate_seq_pair(x0, x1, max_len)
+        x0, x1 = torch.tensor(x0, dtype=torch.long), torch.tensor(x1, dtype=torch.long)
 
         # set tokens and segments
         if x1 is not None:
@@ -64,8 +65,8 @@ class ProteinChemicalDataset(Dataset):
     def __getitem__(self, idx):
         label, protein, chem = self.labels[idx], self.proteins[idx], self.molecules[idx]
         label = torch.tensor(label, dtype=torch.long)
-        protein = self.protein_encoder.encode(protein)
-        chem = self.chem_encoder.encode(chem)
+        protein = self.protein_encoder.encode(bytes(protein, encoding='utf8'))
+        chem = self.chem_encoder.encode(bytes(chem, encoding='utf8'))
         tokens, segments, input_mask, length = self._preprocess(protein, chem)
         return tokens, segments, input_mask, length, label
 

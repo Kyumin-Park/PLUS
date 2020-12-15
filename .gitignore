@@ -1,4 +1,4 @@
-.data/
+data/
 .pretrained_models/
 .private/
 .results/
