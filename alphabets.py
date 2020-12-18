@@ -5,6 +5,7 @@
 """ Biological sequence encoding functions """
 
 import numpy as np
+from utils import get_smiles_vocab
 
 
 class Alphabet:
@@ -57,9 +58,9 @@ class Protein(Alphabet):
 class Chem(Alphabet):
     """ protein sequence encoder """
     def __init__(self):
-        chars = b'@C)(=cOn1S2/H[N]\\'
+        chars = get_smiles_vocab()
         encoding = np.arange(len(chars))
         encoding += 24                    # leave 0 for padding tokens
-        super(Chem, self).__init__(chars, encoding, missing=41)
+        super(Chem, self).__init__(chars, encoding, missing=24+len(chars)+1)
 
 

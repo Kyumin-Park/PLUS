@@ -32,8 +32,10 @@ class ProteinChemBERT(nn.Module):
             self.drop_cls = nn.Dropout(cfg.dropout)
             self.cls = nn.Linear(cfg.hidden_dim, cfg.num_classes)
 
-    def forward(self, tokens, segments, input_mask, per_seq=True):
+    def forward(self, tokens, segments, input_mask, per_seq=True, embedding=False):
         h = self.transformer(tokens, segments, input_mask)
+        if embedding:
+            return h
 
         if per_seq:
             logits_cls = self.cls(self.drop_cls(h[:, 0]))
@@ -62,41 +64,27 @@ class ProteinChemBERT(nn.Module):
         return e
 
 
-def get_loss(batch, models_dict, cfg, tasks_dict, args, test=False):
-    """ feed-forward and evaluate PLUS_TFM model """
-    models, models_idx, tasks_idx = models_dict["model"], models_dict["idx"], tasks_dict["idx"]
-    if not test: tasks_flag = tasks_dict["flags_train"]
-    else:        tasks_flag = tasks_dict["flags_eval"]
-    per_seq = True
-    tokens, segments, input_mask, labels = batch
-    masked_pos = None
+class ProteinECFPModel(nn.Module):
+    def __init__(self, cfg):
+        super(ProteinECFPModel, self).__init__()
+        self.bert = ProteinChemBERT(cfg)
+        self.chem_linear = nn.Sequential(
+            nn.Linear(2048, 2048), nn.ReLU(inplace=True),
+            nn.Linear(2048, 2048), nn.ReLU(inplace=True),
+            nn.Linear(2048, 768)
+        )
 
-    logits_lm, logits_cls = models[models_idx.index("")](tokens, segments, input_mask, masked_pos, per_seq)
+        self.classifier = nn.Sequential(
+            nn.Linear(768 * 2, 2048), nn.ReLU(inplace=True),
+            nn.Linear(2048, 2048), nn.ReLU(inplace=True),
+            nn.Linear(2048, 2), nn.Softmax(),
+        )
 
-    results = []
-    if per_seq: result = args["evaluate_cls"](logits_cls, labels, flag, args)
-    else:       result = args["evaluate_cls"](logits_cls, labels, label_weights, flag)
-    if cfg.cls_loss_lambda != -1: result["avg_loss"] = result["avg_loss"] * cfg.cls_loss_lambda
-    if "aggregate" in args:
-        result["valid"] = [valids.cpu()]
-        result["label_weights"] = [label_weights.cpu()]
+    def forward(self, tokens, segments, input_mask, ecfp):
+        h = self.bert(tokens, segments, input_mask, embedding=True)
+        h = h[:, 0, :]
+        chem_feature = self.chem_linear(ecfp)
 
-        results.append(result)
-
-    return results
-
-
-def get_embedding(batch, models_dict, args):
-    """ feed-forward and evaluate PLUS_TFM model """
-    models, models_idx = models_dict["model"], models_dict["idx"]
-    tokens, segments, input_mask = batch
-
-    model = models[models_idx.index("")]
-    h = model(tokens, segments, input_mask, embedding=True)
-
-    h_list = model.module.em(h, input_mask, cpu=True) if args["data_parallel"] else model.em(h, input_mask, cpu=True)
-    embeddings = [[], h_list]
-
-    return embeddings
-
-
+        features = torch.cat([h, chem_feature], dim=1)
+        out = self.classifier(features)
+        return out
