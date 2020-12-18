@@ -22,11 +22,11 @@ def main():
     else:
         raise NotImplementedError
 
-    train_loader = DataLoader(data_cls(), batch_size=cfg.batch_size,
+    train_loader = DataLoader(data_cls(mode='train'), batch_size=cfg.batch_size,
                               shuffle=True, num_workers=4)
-    val_loader = DataLoader(data_cls(), batch_size=32,
+    val_loader = DataLoader(data_cls(mode='val'), batch_size=32,
                             shuffle=False, num_workers=4)
-    test_loader = DataLoader(data_cls(), batch_size=32,
+    test_loader = DataLoader(data_cls(mode='test'), batch_size=32,
                              shuffle=False, num_workers=4)
 
     # Configure extra configs
@@ -80,7 +80,7 @@ def get_args():
         setattr(cfg, key, item)
 
     cfg.device = torch.device(cfg.device if torch.cuda.is_available() else 'cpu')
-    os.makedirs(cfg.save_path)
+    os.makedirs(cfg.save_path, exist_ok=True)
 
     print(cfg)
 

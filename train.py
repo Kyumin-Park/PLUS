@@ -43,6 +43,8 @@ class Trainer:
                 val_loss, val_acc = self.evaluate(self.val_loader, 'Validation')
                 if val_acc > best_val:
                     torch.save(self.model.state_dict(), self.cfg.save_path + 'best_acc.pt')
+                    best_val = val_acc
+                    print('Best Checkpoint Saved')
         print('Train Finished')
 
     def evaluate(self, loader, name):

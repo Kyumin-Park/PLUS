@@ -7,14 +7,24 @@ from alphabets import Protein, Chem
 
 
 class ProteinChemicalDataset(Dataset):
-    def __init__(self, mode='train'):
+    def __init__(self, mode='train', seed=1):
         data = pd.read_csv('./data/preprocessed_data.tsv', sep='\t', header=None)
+        data = data.sample(frac=1, random_state=seed).reset_index(drop=True)
+        train_len, val_len = int(len(data) * 0.8), int(len(data) * 0.9)
+        if mode == 'train':
+            data = data.loc[:train_len]
+        elif mode == 'val':
+            data = data.loc[train_len:val_len].reset_index(drop=True)
+        else:
+            data = data.loc[val_len:].reset_index(drop=True)
         self.labels = data[0]
         self.proteins = data[1]
         self.molecules = data[2]
 
         self.protein_encoder = Protein()
         self.chem_encoder = Chem()
+
+        print(f'{mode} dataset Loaded - Length: {len(data)}')
 
     def __len__(self):
         return len(self.labels)
@@ -72,13 +82,24 @@ class ProteinChemicalDataset(Dataset):
 
 
 class ProteinECFPDataset(Dataset):
-    def __init__(self, mode='train'):
+    def __init__(self, mode='train', seed=1):
         data = pd.read_csv('./data/preprocessed_data_ecfp.tsv', sep='\t', header=None)
+        data = data.sample(frac=1, random_state=seed).reset_index(drop=True)
+        train_len, val_len = int(len(data) * 0.8), int(len(data) * 0.9)
+        if mode == 'train':
+            data = data.loc[:train_len]
+        elif mode == 'val':
+            data = data.loc[train_len:val_len]
+        else:
+            data = data.loc[val_len:]
+
         self.labels = data[0]
         self.proteins = data[1]
         self.molecules = data[2]
 
         self.protein_encoder = Protein()
+
+        print(f'{mode} dataset Loaded - Length: {len(data)}')
 
     def __len__(self):
         return len(self.labels)
