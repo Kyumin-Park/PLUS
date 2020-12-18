@@ -68,7 +68,7 @@ def get_args():
     parser.add_argument('--num_classes', default=2, type=int, help='Number of classes')
     parser.add_argument('--pretrained_model', default='./weight/PLUS-TFM.pt', type=str, help='Pretrained Model')
     parser.add_argument('--val_interval', default=1, type=int, help='Validation interval')
-    parser.add_argument('--mode', default='ecfp', type=str, choices=['ecfp', 'smiles'],
+    parser.add_argument('--mode', default='smiles', type=str, choices=['ecfp', 'smiles'],
                         help='mode of prediction model')
     parser.add_argument('--save_path', default='./weight/checkpoint/', type=str, help='checkpoint path')
 

@@ -89,9 +89,9 @@ class ProteinECFPDataset(Dataset):
         if mode == 'train':
             data = data.loc[:train_len]
         elif mode == 'val':
-            data = data.loc[train_len:val_len]
+            data = data.loc[train_len:val_len].reset_index(drop=True)
         else:
-            data = data.loc[val_len:]
+            data = data.loc[val_len:].reset_index(drop=True)
 
         self.labels = data[0]
         self.proteins = data[1]

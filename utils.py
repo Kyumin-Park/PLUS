@@ -1,3 +1,4 @@
+import argparse
 import pandas
 import requests
 import tqdm
@@ -69,5 +70,13 @@ def get_smiles_vocab():
 
 
 if __name__ == '__main__':
-    # collect_smiles(5000)
-    collect_ecfp(5000)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--mode', default='smiles', type=str, choices=['smiles', 'ecfp'],
+                        help='Collection mode')
+    parser.add_argument('--n_data', default=5000, type=int, help='Number of data per label')
+    cfg = parser.parse_args()
+
+    if cfg.mode == 'smiles':
+        collect_smiles(cfg.n_data)
+    else:
+        collect_ecfp(cfg.n_data)
